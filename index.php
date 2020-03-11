@@ -1,8 +1,8 @@
 <?php
 
 ?>
-<script src="/echart/echarts.min.js"></script>
-<script type="text/javascript" src="/china.js"></script>
+<script src="./echart/echarts.min.js"></script>
+<script type="text/javascript" src="./china.js"></script>
 <!DOCTYPE html>
 <html style="height: 100%">
    <head>
@@ -105,6 +105,10 @@ option = {
 if (option && typeof option === "object") {
     myChart.setOption(option, true);
 }
+myChart.on('click', function (params) {
+    var city = params.name;
+    document.write(city);
+});
        </script>
    </body>
 </html> 
