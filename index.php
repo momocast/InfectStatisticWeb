@@ -4,11 +4,79 @@
 <script src="./echart/echarts.min.js"></script>
 <script type="text/javascript" src="./china.js"></script>
 <!DOCTYPE html>
+<style>
+    .info{
+        height:100px;
+        width:300px;
+        margin:16.6px;
+        background-color:white;
+        float:left;
+        list-style:none;
+    }
+    .con{
+        height:270px;
+        width:1000px;
+        margin:100px auto;
+    }
+    .type{
+        display:block;
+        margin:5px auto;
+        font-size:1.2em;
+        text-align:center;
+    }
+    .num{
+        display:block;
+        margin:0px auto;
+        font-size:2em;
+        text-align:center;
+        font-weight:700;
+    }
+    .change{
+        display:block;
+        margin:3px auto;
+        font-size:0.8em;
+        text-align:center;
+    }
+</style>
 <html style="height: 100%">
    <head>
        <meta charset="utf-8">
    </head>
-   <body style="height: 1000px; margin: 0">
+   
+   <div class='con'>
+   <span id='test' class='type'>全国</span>
+   		<li class='info'>
+   			<span class='type'>现有确诊</span>
+   			<span class='num' style='color:#ff6857'>22264</span>
+   			<span class='change'>昨日</span>
+   		</li>
+   		<li class='info'>
+   			<span class='type'>现有疑似</span>
+   			<span class='num' style='color:#ec9217'>502</span>
+   			<span class='change'>昨日</span>
+   		</li>
+   		<li class='info'>
+   			<span class='type'>现有重症</span>
+   			<span class='num' style='color:#466da0'>5489</span>
+   			<span class='change'>昨日</span>
+   		</li>
+   		<li class='info'>
+   			<span class='type'>累计确诊</span>
+   			<span class='num' style='color:#e83132'>80814</span>
+   			<span class='change'>昨日</span>
+   		</li>
+   		<li class='info'>
+   			<span class='type'>累计治愈</span>
+   			<span class='num' style='color:#40b0b5'>55477</span>
+   			<span class='change'>昨日</span>
+   		</li>
+   		<li class='info'>
+   			<span class='type'>累计死亡</span>
+   			<span class='num' style='color:#4d5054'>3073</span>
+   			<span class='change'>昨日</span>
+   		</li>
+   </div>
+   <body style="height: 1000px;  margin:100px auto;">
        <div id="container" style="height: 1000px"></div>
 
        <script type="text/javascript">
@@ -105,6 +173,11 @@ option = {
 if (option && typeof option === "object") {
     myChart.setOption(option, true);
 }
+myChart.on('click', function (params) {
+    var city = params.name;
+    var test = document.getElementById('test');
+    test.innerHTML=city;
+});
        </script>
    </body>
 </html> 
