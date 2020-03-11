@@ -1,2 +1,2 @@
-# InfectStatisticWeb
-第二次结对作业
+# 代码风格
+
