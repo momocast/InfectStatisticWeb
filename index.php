@@ -1,5 +1,53 @@
 <?php
+//读取log文件 获取疫情信息
+$servername = "localhost";
+$username = "root";
+$password = "";
+$dbname = "info";
+// 创建连接
+$conn = new mysqli($servername, $username, $password, $dbname);
 
+// 检测连接
+if ($conn->connect_error) {
+    die("连接失败: " . $conn->connect_error);
+}
+    $list=glob("./log/*.txt");
+    var_dump($list);
+    for($i=0;$i<count($list);$i++){
+        
+        $file = fopen($list[$i], "r") or exit("Unable to open file!");
+        $date=substr(mb_convert_encoding($list[$i], 'utf-8', 'gbk'), 6,10);
+        echo $date;
+        while(!feof($file))
+        {
+            
+            $line=fgets($file);
+            
+            $line=str_replace(" ","_",$line);
+            
+            $arr = explode('_' , $line);
+            if(count($arr)<2)
+                continue;
+            if(count($arr)==4){
+                if(mb_convert_encoding($arr[1], 'utf-8', 'gbk')=="新增"){
+                    $count=substr(mb_convert_encoding($arr[3], 'utf-8', 'gbk'), 0,-5);
+                    var_dump($count);
+                    $sql = "INSERT INTO situation (date, province, type, diff) VALUES ('".$date."', '".mb_convert_encoding($arr[0], 'utf-8', 'gbk')."', '".mb_convert_encoding($arr[2], 'utf-8', 'gbk')."', '".$count."')";
+                    echo $sql;
+                    if($conn->query($sql))
+                    echo "save";
+                }
+                
+            }
+            var_dump($arr);
+            
+            echo "<br>";
+            break;
+        }
+        fclose($file);
+        break;
+    }
+    $conn->close();
 ?>
 <script src="./echart/echarts.min.js"></script>
 <script type="text/javascript" src="./china.js"></script>
