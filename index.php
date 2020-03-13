@@ -1,53 +1,187 @@
 <?php
-//读取log文件 获取疫情信息
-$servername = "localhost";
-$username = "root";
-$password = "";
-$dbname = "info";
-// 创建连接
-$conn = new mysqli($servername, $username, $password, $dbname);
 
-// 检测连接
-if ($conn->connect_error) {
-    die("连接失败: " . $conn->connect_error);
+header("Content-Type: text/html;charset=utf-8");
+//读取log文件 获取疫情信息
+$list=glob("./log/*.txt");
+//var_dump($list);
+$arr = array('北京','天津','上海','重庆','河北','河南','云南','辽宁','黑龙江','湖南','安徽','山东','新疆','江苏','浙江','江西','湖北','广西','甘肃','山西','内蒙古','陕西','吉林','福建','贵州','广东','青海','西藏','四川','宁夏','海南','台湾','香港','澳门');
+$info=array();
+$yes=array();
+$all=array();
+$all['suspected']='0';
+$all['infected']='0';
+$all['severe']='0';
+$all['cumulative']='0';
+$all['cured']='0';
+$all['dead']='0';
+$yall=array();
+$yall['suspected']='0';
+$yall['infected']='0';
+$yall['severe']='0';
+$yall['cumulative']='0';
+$yall['cured']='0';
+$yall['dead']='0';
+for($i=0;$i<count($arr);$i++){
+    $t=array();
+    $t['province']=$arr[$i];
+    $t['suspected']='0';
+    $t['infected']='0';
+    $t['severe']='0';
+    $t['cumulative']='0';
+    $t['cured']='0';
+    $t['dead']='0';
+    $info[$i]=$t;
+    $yes[$i]=$t;
 }
-    $list=glob("./log/*.txt");
-    var_dump($list);
-    for($i=0;$i<count($list);$i++){
+$arr2 = array_column($info, 'province');
+
+//var_dump($arr2);
+for($i=0;$i<count($list);$i++){
+    $file = fopen($list[$i], "r") or exit("Unable to open file!");
+//     $date=substr(mb_convert_encoding($list[$i], 'utf-8', 'gbk'), 6,10);
+//     echo $date;
+    while(!feof($file))
+    {
+        $line=fgets($file);
         
-        $file = fopen($list[$i], "r") or exit("Unable to open file!");
-        $date=substr(mb_convert_encoding($list[$i], 'utf-8', 'gbk'), 6,10);
-        echo $date;
-        while(!feof($file))
-        {
-            
-            $line=fgets($file);
-            
-            $line=str_replace(" ","_",$line);
-            
-            $arr = explode('_' , $line);
-            if(count($arr)<2)
-                continue;
+        $line=str_replace(" ","_",$line);
+        
+        $arr = explode('_' , $line);
+        if(count($arr)<2)
+            continue;
             if(count($arr)==4){
-                if(mb_convert_encoding($arr[1], 'utf-8', 'gbk')=="新增"){
-                    $count=substr(mb_convert_encoding($arr[3], 'utf-8', 'gbk'), 0,-5);
-                    var_dump($count);
-                    $sql = "INSERT INTO situation (date, province, type, diff) VALUES ('".$date."', '".mb_convert_encoding($arr[0], 'utf-8', 'gbk')."', '".mb_convert_encoding($arr[2], 'utf-8', 'gbk')."', '".$count."')";
-                    echo $sql;
-                    if($conn->query($sql))
-                    echo "save";
+                $count=substr(mb_convert_encoding($arr[3], 'utf-8', 'gbk'), 0,-5);
+                $key = array_search(mb_convert_encoding($arr[0], 'utf-8', 'gbk'),$arr2);
+                if(mb_convert_encoding($arr[1], 'utf-8', 'gbk')=="新增"){   
+                    if(mb_convert_encoding($arr[2], 'utf-8', 'gbk')=="感染患者"){
+                        $info[$key]['infected']+=$count;
+                        $all['infected']+=$count;
+                        $info[$key]['cumulative']+=$count;
+                        $all['cumulative']+=$count;
+                    }
+                    else{
+                        $info[$key]['suspected']+=$count;
+                        $all['suspected']+=$count;
+                    }
+                        
                 }
-                
+                if(mb_convert_encoding($arr[1], 'utf-8', 'gbk')=="排除"){
+                    $info[$key]['suspected']-=$count;
+                    $all['suspected']-=$count;
+                }
+                if(mb_convert_encoding($arr[1], 'utf-8', 'gbk')=="疑似患者"){
+                    $info[$key]['suspected']-=$count;
+                    $info[$key]['infected']+=$count;
+                    $all['suspected']-=$count;
+                    $all['infected']+=$count;
+                    
+                }
             }
-            var_dump($arr);
-            
-            echo "<br>";
-            break;
-        }
-        fclose($file);
-        break;
+            else{
+                
+                $count=substr(mb_convert_encoding($arr[2], 'utf-8', 'gbk'), 0,-5);
+                $key = array_search(mb_convert_encoding($arr[0], 'utf-8', 'gbk'),$arr2);
+                if(mb_convert_encoding($arr[1], 'utf-8', 'gbk')=="死亡"){
+                    $info[$key]['infected']-=$count;
+                    $info[$key]['dead']+=$count;
+                    $all['infected']-=$count;
+                    $all['dead']+=$count;
+                }
+                else{
+                    $info[$key]['infected']-=$count;                    
+                    $info[$key]['cured']+=$count;
+                    $all['infected']-=$count;
+                    $all['cured']+=$count;
+                }
+            }
+            if($i==count($list)-1){
+                if(count($arr)==4){
+                    $count=substr(mb_convert_encoding($arr[3], 'utf-8', 'gbk'), 0,-5);
+                    $key = array_search(mb_convert_encoding($arr[0], 'utf-8', 'gbk'),$arr2);
+                    if(mb_convert_encoding($arr[1], 'utf-8', 'gbk')=="新增"){
+                        if(mb_convert_encoding($arr[2], 'utf-8', 'gbk')=="感染患者"){
+                            $yes[$key]['infected']+=$count;
+                            $yes[$key]['cumulative']+=$count;
+                            $yall['infected']+=$count;
+                            $yall['cumulative']+=$count;
+                        }
+                        else{
+                            $yes[$key]['suspected']+=$count;
+                            $yall['suspected']+=$count;
+                        }
+                        
+                    }
+                    if(mb_convert_encoding($arr[1], 'utf-8', 'gbk')=="排除"){
+                        $yes[$key]['suspected']-=$count;
+                        $yall['suspected']-=$count;
+                    }
+                    if(mb_convert_encoding($arr[1], 'utf-8', 'gbk')=="疑似患者"){
+                        $yes[$key]['suspected']-=$count;
+                        $yes[$key]['infected']+=$count;
+                        $yall['suspected']-=$count;
+                        $yall['infected']+=$count;
+                    }
+                }
+                else{
+                    //var_dump($arr);
+                    $count=substr(mb_convert_encoding($arr[2], 'utf-8', 'gbk'), 0,-5);
+                    $key = array_search(mb_convert_encoding($arr[0], 'utf-8', 'gbk'),$arr2);
+                    if(mb_convert_encoding($arr[1], 'utf-8', 'gbk')=="死亡"){
+                        $yes[$key]['infected']-=$count;
+                        $yes[$key]['dead']+=$count;
+                        $yall['infected']-=$count;
+                        $yall['dead']+=$count;
+                    }
+                    else{
+                        $yes[$key]['infected']-=$count;
+                        $yes[$key]['cured']+=$count;
+                        $yall['infected']-=$count;
+                        $yall['cured']+=$count;
+                    }
+                }
+            }
+            //var_dump($arr);
+            //echo "<br>";
     }
-    $conn->close();
+    fclose($file);
+}
+
+//var_dump($info);
+$a='suspected';
+$b='infected';
+$c='severe';
+$d='cumulative';
+$e='cured';
+$f='dead';
+for($i=0;$i<count($info);$i++){
+    $province=$info[$i]['province'];
+    $suspected=$info[$i]['suspected'];
+    $infected=$info[$i]['infected'];
+    $severe=$info[$i]['severe'];
+    $cumulative=$info[$i]['cumulative'];
+    $cured=$info[$i]['cured'];
+    $dead=$info[$i]['dead'];
+    $yprovince=$yes[$i]['province'];
+    $ysuspected=$yes[$i]['suspected'];
+    $yinfected=$yes[$i]['infected'];
+    $ysevere=$yes[$i]['severe'];
+    $ycumulative=$yes[$i]['cumulative'];
+    $ycured=$yes[$i]['cured'];
+    $ydead=$yes[$i]['dead'];
+    $y='y';
+    echo "<input value=$suspected id=$province$a style=\"display: none;\"/>";
+    echo "<input value=$infected id=$province$b style=\"display: none;\"/>";
+    echo "<input value=$severe id=$province$c style=\"display: none;\"/>";
+    echo "<input value=$cumulative id=$province$d style=\"display: none;\"/>";
+    echo "<input value=$cured id=$province$e style=\"display: none;\"/>";
+    echo "<input value=$dead id=$province$f style=\"display: none;\"/>";
+    echo "<input value=$ysuspected id=$province$y$a style=\"display: none;\"/>";
+    echo "<input value=$yinfected id=$province$y$b style=\"display: none;\"/>";
+    echo "<input value=$ysevere id=$province$y$c style=\"display: none;\"/>";
+    echo "<input value=$ycumulative id=$province$y$d style=\"display: none;\"/>";
+    echo "<input value=$ycured id=$province$y$e style=\"display: none;\"/>";
+    echo "<input value=$ydead id=$province$y$f style=\"display: none;\"/>";
+}
 ?>
 <script src="./echart/echarts.min.js"></script>
 <script type="text/javascript" src="./china.js"></script>
@@ -92,36 +226,37 @@ if ($conn->connect_error) {
    </head>
    
    <div class='con'>
+   <span class='type'>数据更新至：2020-02-02</span>
    <span id='test' class='type'>全国</span>
    		<li class='info'>
    			<span class='type'>现有确诊</span>
-   			<span class='num' style='color:#ff6857'>22264</span>
-   			<span class='change'>昨日</span>
+   			<span id='infected' class='num' style='color:#ff6857'><?=$all['infected'] ?></span>
+   			<span id='yinfected' class='change'>昨日：<?=$yall['infected'] ?></span>
    		</li>
    		<li class='info'>
    			<span class='type'>现有疑似</span>
-   			<span class='num' style='color:#ec9217'>502</span>
-   			<span class='change'>昨日</span>
+   			<span id='suspected' class='num' style='color:#ec9217'><?=$all['suspected'] ?></span>
+   			<span id='ysuspected' class='change'>昨日：<?=$yall['suspected'] ?></span>
    		</li>
    		<li class='info'>
    			<span class='type'>现有重症</span>
-   			<span class='num' style='color:#466da0'>5489</span>
-   			<span class='change'>昨日</span>
+   			<span id='severe' class='num' style='color:#466da0'><?=$all['severe'] ?></span>
+   			<span id='ysevere' class='change'>昨日：<?=$yall['severe'] ?></span>
    		</li>
    		<li class='info'>
    			<span class='type'>累计确诊</span>
-   			<span class='num' style='color:#e83132'>80814</span>
-   			<span class='change'>昨日</span>
+   			<span id='cumulative' class='num' style='color:#e83132'><?=$all['cumulative'] ?></span>
+   			<span id='ycumulative' class='change'>昨日：<?=$yall['cumulative'] ?></span>
    		</li>
    		<li class='info'>
    			<span class='type'>累计治愈</span>
-   			<span class='num' style='color:#40b0b5'>55477</span>
-   			<span class='change'>昨日</span>
+   			<span id='cured' class='num' style='color:#40b0b5'><?=$all['cured'] ?></span>
+   			<span id='ycured' class='change'>昨日：<?=$yall['cured'] ?></span>
    		</li>
    		<li class='info'>
    			<span class='type'>累计死亡</span>
-   			<span class='num' style='color:#4d5054'>3073</span>
-   			<span class='change'>昨日</span>
+   			<span id='dead' class='num' style='color:#4d5054'><?=$all['dead'] ?></span>
+   			<span id='ydead' class='change'>昨日：<?=$yall['dead'] ?></span>
    		</li>
    </div>
    <body style="height: 1000px;  margin:100px auto;">
@@ -180,40 +315,40 @@ option = {
                 }
             },
             data:[
-                {name: '北京',value: Math.round(Math.random()*1000)},
-                {name: '天津',value: Math.round(Math.random()*1000)},
-                {name: '上海',value: Math.round(Math.random()*1000)},
-                {name: '重庆',value: Math.round(Math.random()*1000)},
-                {name: '河北',value: Math.round(Math.random()*1000)},
-                {name: '河南',value: Math.round(Math.random()*1000)},
-                {name: '云南',value: Math.round(Math.random()*1000)},
-                {name: '辽宁',value: Math.round(Math.random()*1000)},
-                {name: '黑龙江',value: Math.round(Math.random()*1000)},
-                {name: '湖南',value: Math.round(Math.random()*1000)},
-                {name: '安徽',value: Math.round(Math.random()*1000)},
-                {name: '山东',value: Math.round(Math.random()*1000)},
-                {name: '新疆',value: Math.round(Math.random()*1000)},
-                {name: '江苏',value: Math.round(Math.random()*1000)},
-                {name: '浙江',value: Math.round(Math.random()*1000)},
-                {name: '江西',value: Math.round(Math.random()*1000)},
-                {name: '湖北',value: Math.round(Math.random()*1000)},
-                {name: '广西',value: Math.round(Math.random()*1000)},
-                {name: '甘肃',value: Math.round(Math.random()*1000)},
-                {name: '山西',value: Math.round(Math.random()*1000)},
-                {name: '内蒙古',value: Math.round(Math.random()*1000)},
-                {name: '陕西',value: Math.round(Math.random()*1000)},
-                {name: '吉林',value: Math.round(Math.random()*1000)},
-                {name: '福建',value: Math.round(Math.random()*1000)},
-                {name: '贵州',value: Math.round(Math.random()*1000)},
-                {name: '广东',value: Math.round(Math.random()*1000)},
-                {name: '青海',value: Math.round(Math.random()*1000)},
-                {name: '西藏',value: Math.round(Math.random()*1000)},
-                {name: '四川',value: Math.round(Math.random()*1000)},
-                {name: '宁夏',value: Math.round(Math.random()*1000)},
-                {name: '海南',value: Math.round(Math.random()*1000)},
-                {name: '台湾',value: Math.round(Math.random()*1000)},
-                {name: '香港',value: Math.round(Math.random()*1000)},
-                {name: '澳门',value: Math.round(Math.random()*1000)}
+                {name: '北京',value: document.getElementById('北京'+'infected').value},
+                {name: '天津',value: document.getElementById('天津'+'infected').value},
+                {name: '上海',value: document.getElementById('上海'+'infected').value},
+                {name: '重庆',value: document.getElementById('重庆'+'infected').value},
+                {name: '河北',value: document.getElementById('河北'+'infected').value},
+                {name: '河南',value: document.getElementById('河南'+'infected').value},
+                {name: '云南',value: document.getElementById('云南'+'infected').value},
+                {name: '辽宁',value: document.getElementById('辽宁'+'infected').value},
+                {name: '黑龙江',value: document.getElementById('黑龙江'+'infected').value},
+                {name: '湖南',value: document.getElementById('湖南'+'infected').value},
+                {name: '安徽',value: document.getElementById('安徽'+'infected').value},
+                {name: '山东',value: document.getElementById('山东'+'infected').value},
+                {name: '新疆',value: document.getElementById('新疆'+'infected').value},
+                {name: '江苏',value: document.getElementById('江苏'+'infected').value},
+                {name: '浙江',value: document.getElementById('浙江'+'infected').value},
+                {name: '江西',value: document.getElementById('江西'+'infected').value},
+                {name: '湖北',value: document.getElementById('湖北'+'infected').value},
+                {name: '广西',value: document.getElementById('广西'+'infected').value},
+                {name: '甘肃',value: document.getElementById('甘肃'+'infected').value},
+                {name: '山西',value: document.getElementById('山西'+'infected').value},
+                {name: '内蒙古',value: document.getElementById('内蒙古'+'infected').value},
+                {name: '陕西',value: document.getElementById('陕西'+'infected').value},
+                {name: '吉林',value: document.getElementById('吉林'+'infected').value},
+                {name: '福建',value: document.getElementById('福建'+'infected').value},
+                {name: '贵州',value: document.getElementById('贵州'+'infected').value},
+                {name: '广东',value: document.getElementById('广东'+'infected').value},
+                {name: '青海',value: document.getElementById('青海'+'infected').value},
+                {name: '西藏',value: document.getElementById('西藏'+'infected').value},
+                {name: '四川',value: document.getElementById('四川'+'infected').value},
+                {name: '宁夏',value: document.getElementById('宁夏'+'infected').value},
+                {name: '海南',value: document.getElementById('海南'+'infected').value},
+                {name: '台湾',value: document.getElementById('台湾'+'infected').value},
+                {name: '香港',value: document.getElementById('香港'+'infected').value},
+                {name: '澳门',value: document.getElementById('澳门'+'infected').value}
             ]
         }
     ]
@@ -225,6 +360,31 @@ myChart.on('click', function (params) {
     var city = params.name;
     var test = document.getElementById('test');
     test.innerHTML=city;
+    var test = document.getElementById('suspected');
+    test.innerHTML=document.getElementById(params.name+'suspected').value;
+    var test = document.getElementById('infected');
+    test.innerHTML=document.getElementById(params.name+'infected').value;
+    var test = document.getElementById('severe');
+    test.innerHTML=document.getElementById(params.name+'severe').value;
+    var test = document.getElementById('cumulative');
+    test.innerHTML=document.getElementById(params.name+'cumulative').value;
+    var test = document.getElementById('cured');
+    test.innerHTML=document.getElementById(params.name+'cured').value;
+    var test = document.getElementById('dead');
+    test.innerHTML=document.getElementById(params.name+'dead').value;
+
+    var test = document.getElementById('ysuspected');
+    test.innerHTML="昨日："+document.getElementById(params.name+'ysuspected').value;
+    var test = document.getElementById('yinfected');
+    test.innerHTML="昨日："+document.getElementById(params.name+'yinfected').value;
+    var test = document.getElementById('ysevere');
+    test.innerHTML="昨日："+document.getElementById(params.name+'ysevere').value;
+    var test = document.getElementById('ycumulative');
+    test.innerHTML="昨日："+document.getElementById(params.name+'ycumulative').value;
+    var test = document.getElementById('ycured');
+    test.innerHTML="昨日："+document.getElementById(params.name+'ycured').value;
+    var test = document.getElementById('ydead');
+    test.innerHTML="昨日："+document.getElementById(params.name+'ydead').value;
 });
        </script>
    </body>
