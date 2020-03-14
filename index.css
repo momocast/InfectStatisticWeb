@@ -1,0 +1,33 @@
+@charset "UTF-8";
+.info{
+        height:100px;
+        width:300px;
+        margin:16.6px;
+        background-color:white;
+        float:left;
+        list-style:none;
+    }
+    .con{
+        height:270px;
+        width:1000px;
+        margin:100px auto;
+    }
+    .type{
+        display:block;
+        margin:5px auto;
+        font-size:1.2em;
+        text-align:center;
+    }
+    .num{
+        display:block;
+        margin:0px auto;
+        font-size:2em;
+        text-align:center;
+        font-weight:700;
+    }
+    .change{
+        display:block;
+        margin:3px auto;
+        font-size:0.8em;
+        text-align:center;
+    }
