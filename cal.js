@@ -121,25 +121,26 @@
 	    test.innerHTML="昨日："+document.getElementById(params.name+'ycured').value;
 	    var test = document.getElementById('ydead');
 	    test.innerHTML="昨日："+document.getElementById(params.name+'ydead').value;
+	    
+	    
+	    
+		var data = [];
+		var time = document.getElementsByName('ttt');
+		var test = document.getElementById('test');
+		var list = document.getElementsByName('i'+test.innerHTML);
+		for(var i=0;i<list.length;i++){
+			data.push({
+		        value: [time[i].value, list[i].value],
+		    });
+		}
 	    echarts.init(document.getElementById('main')).setOption({
-	         title: {text: '新增确诊趋势'},  // 标题。
-	         tooltip: {},
-	         toolbox: {
-	             feature: {
-	                 dataView: {},  // 数据视图，单击显示坐标点数据。
-	                 saveAsImage: {  // 保存为图片。
-	                     pixelRatio: 2  // 像素比。
-	                 },
-	                 restore: {}  // 还原，不知道具体什么作用。
-	             }
+	    	title: {
+	             text: test.innerHTML
 	         },
-	         xAxis: {},
-	         yAxis: {},
 	         series: [{
-	             type: 'line',  //线状图。
-	             smooth: true,  // 平滑。
-	             data: [[12, 5], [24, 20], [36, 36], [48, 100], [60, 10], [72, 200]]  // 点坐标[x,y]
+	             data: data  // 点坐标[x,y]
 	         }]
 	     });
 	});
+	
 })();

@@ -31,3 +31,22 @@
         font-size:0.8em;
         text-align:center;
     }
+    .option{
+    	height:80px;
+    	width:300px;
+    	background-color:#F5F6F7;
+    	float:left;
+    	position:relative;
+    	left:300px;
+    	margin:10px;
+    }
+    .aoption{
+    	height:80px;
+    	width:300px;
+    	background-color:#00BEC7;
+    	float:left;
+    	position:relative;
+    	left:300px;
+    	margin:10px;
+    	color:white;
+    }
