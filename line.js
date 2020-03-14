@@ -1,20 +1,12 @@
 (function(){
-	var list = document.getElementsByName('iall');
-	var data = [];
-	var time = document.getElementsByName('ttt');
-	console.log(time.length);
-	for(var i=0;i<list.length;i++){
-		console.log(time[i].value);
-		data.push({
-	        value: [time[i].value, list[i].value],
-	    });
-	}
-	    //这里可以循环出每个元素对象
-		
-
-    
+    var data = [
+        {name:'2016/12/18 6:38:08', value:['2016/12/18 6:38:08', 80]},
+        {name:'2016/12/18 16:18:18', value:['2016/12/18 16:18:18', 60]},
+        {name:'2016/12/18 19:18:18', value:['2016/12/18 19:18:18', 90]}
+        ];
     var anchor = [
-
+        {name:'2016/12/18 00:00:00', value:['2016/12/18 00:00:00', 0]},
+        {name:'2016/12/19 00:00:00', value:['2016/12/19 00:00:00', 0]}
         ];
 	 echarts.init(document.getElementById('main')).setOption({
 		 title: {
@@ -49,8 +41,7 @@
              type: 'line',
              showSymbol: false,
              hoverAnimation: false,
-             data: data,
-             smooth:true
+             data: data
          },
          {
              name:'.anchor',
