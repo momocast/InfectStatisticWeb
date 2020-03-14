@@ -242,10 +242,10 @@ for($i=0;$i<count($aall);$i++){
     $infected=$aall[$i]['infected'];
     $cured=$aall[$i]['cured'];
     $dead=$aall[$i]['dead'];
-    echo "<input value=$suspected name=sall style=\"display: none;\"/>";
-    echo "<input value=$infected name=iall style=\"display: none;\"/>";
-    echo "<input value=$cured name=call style=\"display: none;\"/>";
-    echo "<input value=$dead name=dall style=\"display: none;\"/>";
+    echo "<input value=$suspected name=s全国 style=\"display: none;\"/>";
+    echo "<input value=$infected name=i全国 style=\"display: none;\"/>";
+    echo "<input value=$cured name=c全国 style=\"display: none;\"/>";
+    echo "<input value=$dead name=d全国 style=\"display: none;\"/>";
 }
 ?>
 <script src="./echart/echarts.min.js"></script>
@@ -295,7 +295,27 @@ for($i=0;$i<count($aall);$i++){
    <body style="height: 1000px;  margin:100px auto;">
        <div id="container" style="height: 1000px"></div>
 <script type="text/javascript" src="./cal.js"></script>
-       <div id="main" style="width: 600px;height:400px;margin:0 auto;"></div>
+       <div id="main" style="width: 1000px;height:600px;margin:0 auto;"></div>
+       <div class='option' id='oa'>
+
+       		<span class='type'>新增</span>
+       		<span class='type'>确诊趋势</span>
+       </div>
+       <div class='option' id='ob'>
+
+       		<span class='type'>新增</span>
+       		<span class='type'>疑似趋势</span>
+       </div>
+       <div class='option' id='oc'>
+
+       		<span class='type'>新增</span>
+       		<span class='type'>治愈趋势</span>
+       </div>
+       <div class='option' id='od'>
+
+       		<span class='type'>新增</span>
+       		<span class='type'>死亡趋势</span>
+       </div>
        <script type="text/javascript" src="./line.js"></script>
    </body>
 </html> 
