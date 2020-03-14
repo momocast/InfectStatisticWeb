@@ -14,7 +14,7 @@
 	    legend: {
 	        orient: 'vertical',
 	        left: 'left',
-	        data:['iphone']
+	        data:['疫情']
 	    },
 	    visualMap: {
 	        min: 0,
@@ -121,5 +121,22 @@
 	    test.innerHTML="昨日："+document.getElementById(params.name+'ycured').value;
 	    var test = document.getElementById('ydead');
 	    test.innerHTML="昨日："+document.getElementById(params.name+'ydead').value;
+	    
+	    
+	    var list = document.getElementsByName('sall');
+		var data = [];
+		var time = document.getElementsByName('ttt');
+		console.log(time.length);
+		for(var i=0;i<list.length;i++){
+			console.log(time[i].value);
+			data.push({
+		        value: [time[i].value, list[i].value],
+		    });
+		}
+	    echarts.init(document.getElementById('main')).setOption({
+	         series: [{
+	             data: data  // 点坐标[x,y]
+	         }]
+	     });
 	});
 })();
