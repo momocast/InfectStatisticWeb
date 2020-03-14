@@ -63,6 +63,3 @@
 
 - ...
 
-  ```markdown
-  https://github.com/chjw8016/alibaba-java-style-guide
-  ```
