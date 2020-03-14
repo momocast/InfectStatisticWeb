@@ -14,6 +14,7 @@ $all['severe']='0';
 $all['cumulative']='0';
 $all['cured']='0';
 $all['dead']='0';
+$aall=array();
 $yall=array();
 $yall['suspected']='0';
 $yall['infected']='0';
@@ -21,6 +22,7 @@ $yall['severe']='0';
 $yall['cumulative']='0';
 $yall['cured']='0';
 $yall['dead']='0';
+$liner=array();
 for($i=0;$i<count($arr);$i++){
     $t=array();
     $t['province']=$arr[$i];
@@ -33,13 +35,36 @@ for($i=0;$i<count($arr);$i++){
     $info[$i]=$t;
     $yes[$i]=$t;
 }
+$a=0;
+$b=0;
+for($j=0;$j<count($list);$j++){
+    $date=substr(mb_convert_encoding($list[$j], 'utf-8', 'gbk'), 6,10);
+    for($i=0;$i<count($arr);$i++){
+        $t=array();
+        $t['dateprovince']=$date.$arr[$i];
+        $t['suspected']='0';
+        $t['infected']='0';
+        $t['cured']='0';
+        $t['dead']='0';
+        $liner[$a++]=$t;
+    }
+    $aa=array();
+    $aa['date']=$date;
+    $aa['suspected']='0';
+    $aa['infected']='0';
+    $aa['cured']='0';
+    $aa['dead']='0';
+    $aall[$b++]=$aa;
+    echo "<input value=$date name=ttt style=\"display: none;\"/>";
+}
+//echo $line['1']['infected'];
 $arr2 = array_column($info, 'province');
-
-//var_dump($arr2);
+$arr3 = array_column($liner, 'dateprovince');
+$arr4= array_column($aall, 'date');
+//var_dump($arr4);
 for($i=0;$i<count($list);$i++){
     $file = fopen($list[$i], "r") or exit("Unable to open file!");
-//     $date=substr(mb_convert_encoding($list[$i], 'utf-8', 'gbk'), 6,10);
-//     echo $date;
+    $date=substr(mb_convert_encoding($list[$i], 'utf-8', 'gbk'), 6,10);
     while(!feof($file))
     {
         $line=fgets($file);
@@ -52,44 +77,63 @@ for($i=0;$i<count($list);$i++){
             if(count($arr)==4){
                 $count=substr(mb_convert_encoding($arr[3], 'utf-8', 'gbk'), 0,-5);
                 $key = array_search(mb_convert_encoding($arr[0], 'utf-8', 'gbk'),$arr2);
+                $key2 = array_search($date.mb_convert_encoding($arr[0], 'utf-8', 'gbk'),$arr3);
+                $key3 = array_search($date,$arr4);
                 if(mb_convert_encoding($arr[1], 'utf-8', 'gbk')=="新增"){   
                     if(mb_convert_encoding($arr[2], 'utf-8', 'gbk')=="感染患者"){
                         $info[$key]['infected']+=$count;
                         $all['infected']+=$count;
+                        $liner[$key2]['infected']+=$count;
+                        $aall[$key3]['infected']+=$count;
                         $info[$key]['cumulative']+=$count;
                         $all['cumulative']+=$count;
                     }
                     else{
                         $info[$key]['suspected']+=$count;
+                        $liner[$key2]['suspected']+=$count;
+                        $aall[$key3]['suspected']+=$count;
                         $all['suspected']+=$count;
                     }
                         
                 }
                 if(mb_convert_encoding($arr[1], 'utf-8', 'gbk')=="排除"){
                     $info[$key]['suspected']-=$count;
+                    $liner[$key2]['suspected']-=$count;
+                    $aall[$key3]['suspected']-=$count;
                     $all['suspected']-=$count;
                 }
                 if(mb_convert_encoding($arr[1], 'utf-8', 'gbk')=="疑似患者"){
                     $info[$key]['suspected']-=$count;
                     $info[$key]['infected']+=$count;
+                    $liner[$key2]['suspected']-=$count;
+                    $liner[$key2]['infected']+=$count;
+                    $aall[$key3]['suspected']-=$count;
+                    $aall[$key3]['infected']+=$count;
                     $all['suspected']-=$count;
                     $all['infected']+=$count;
                     
                 }
             }
             else{
-                
                 $count=substr(mb_convert_encoding($arr[2], 'utf-8', 'gbk'), 0,-5);
                 $key = array_search(mb_convert_encoding($arr[0], 'utf-8', 'gbk'),$arr2);
                 if(mb_convert_encoding($arr[1], 'utf-8', 'gbk')=="死亡"){
                     $info[$key]['infected']-=$count;
                     $info[$key]['dead']+=$count;
+                    $liner[$key2]['infected']-=$count;
+                    $liner[$key2]['dead']+=$count;
+                    $aall[$key3]['infected']-=$count;
+                    $aall[$key3]['dead']+=$count;
                     $all['infected']-=$count;
                     $all['dead']+=$count;
                 }
                 else{
                     $info[$key]['infected']-=$count;                    
                     $info[$key]['cured']+=$count;
+                    $liner[$key2]['infected']-=$count;
+                    $liner[$key2]['cured']+=$count;
+                    $aall[$key3]['infected']-=$count;
+                    $aall[$key3]['cured']+=$count;
                     $all['infected']-=$count;
                     $all['cured']+=$count;
                 }
@@ -142,10 +186,10 @@ for($i=0;$i<count($list);$i++){
             }
             //var_dump($arr);
             //echo "<br>";
+            
     }
     fclose($file);
 }
-
 //var_dump($info);
 $a='suspected';
 $b='infected';
@@ -181,6 +225,27 @@ for($i=0;$i<count($info);$i++){
     echo "<input value=$ycumulative id=$province$y$d style=\"display: none;\"/>";
     echo "<input value=$ycured id=$province$y$e style=\"display: none;\"/>";
     echo "<input value=$ydead id=$province$y$f style=\"display: none;\"/>";
+}
+for($i=0;$i<count($liner);$i++){
+    $name=substr($liner[$i]['dateprovince'],10);
+    $suspected=$liner[$i]['suspected'];
+    $infected=$liner[$i]['infected'];
+    $cured=$liner[$i]['cured'];
+    $dead=$liner[$i]['dead'];
+    echo "<input value=$suspected name=s$name style=\"display: none;\"/>";
+    echo "<input value=$infected name=i$name style=\"display: none;\"/>";
+    echo "<input value=$cured name=c$name style=\"display: none;\"/>";
+    echo "<input value=$dead name=d$name style=\"display: none;\"/>";
+}
+for($i=0;$i<count($aall);$i++){
+    $suspected=$aall[$i]['suspected'];
+    $infected=$aall[$i]['infected'];
+    $cured=$aall[$i]['cured'];
+    $dead=$aall[$i]['dead'];
+    echo "<input value=$suspected name=sall style=\"display: none;\"/>";
+    echo "<input value=$infected name=iall style=\"display: none;\"/>";
+    echo "<input value=$cured name=call style=\"display: none;\"/>";
+    echo "<input value=$dead name=dall style=\"display: none;\"/>";
 }
 ?>
 <script src="./echart/echarts.min.js"></script>
