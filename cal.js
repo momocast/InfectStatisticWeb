@@ -141,6 +141,13 @@
 	             data: data  // 点坐标[x,y]
 	         }]
 	     });
+	    document.getElementById('oa').className='aoption';
+		 var a = document.getElementById('ob');
+		 var b = document.getElementById('oc');
+		 var c = document.getElementById('od');
+		 a.className='option';
+		 b.className='option';
+		 c.className='option';
 	});
 	
 })();
